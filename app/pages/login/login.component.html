@@ -1,0 +1,97 @@
+<div class="login-page"> 
+
+    <!-- bubbles -->
+
+    <div class="bubble bubble1"></div>
+    <div class="bubble bubble2"></div>
+    <div class="bubble bubble3"></div>
+
+    <!-- card -->
+
+    <div class="login-card">
+
+        <div class="left">
+
+            <h1>Welcome Back ✨</h1>
+
+            <p>
+                Login to continue your premium shopping
+                experience with WishCart.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">
+                    🔥 Flash Deals Everyday
+                </div>
+
+                <div class="feature">
+                    💎 Premium Rewards
+                </div>
+
+                <div class="feature">
+                    🚀 Fast Checkout
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="right">
+
+            <h2>Login</h2>
+
+            <form #loginForm="ngForm" (ngSubmit)="login()">
+
+                <div class="input-box">
+
+                    <label>Email</label>
+
+                    <input
+                    type="email"
+                    name="email"
+                    ngModel
+                    required
+                    email
+                    #email="ngModel"
+                    placeholder="Enter your email">
+
+                    <small *ngIf="email.invalid && email.touched">
+                        Valid email is required
+                    </small>
+
+                </div>
+
+                <div class="input-box">
+
+                    <label>Password</label>
+
+                    <input
+                    type="password"
+                    name="password"
+                    ngModel
+                    required
+                    minlength="6"
+                    #password="ngModel"
+                    placeholder="Enter password">
+
+                    <small *ngIf="password.invalid && password.touched">
+                        Minimum 6 characters required
+                    </small>
+
+                </div>
+
+                <button type="submit" [disabled]="loading">{{ loading ? 'Logging in...' : 'Login' }}</button>
+
+            </form>
+
+            <div class="bottom-text">
+                Don’t have an account?
+                <a routerLink="/register">Register</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

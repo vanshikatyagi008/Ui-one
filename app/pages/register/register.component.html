@@ -1,0 +1,121 @@
+<div class="register-page">
+
+  <!-- BACKGROUND ANIMATION -->
+  <div class="background-animation">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- LEFT BRAND PANEL -->
+  <div class="brand-panel">
+    <div class="brand-content">
+
+      <h1 class="brand-title">Join WishCart</h1>
+      <p class="brand-tagline">Wish it. Cart it. Get it.</p>
+     
+
+      <div class="steps">
+        <div class="step-item">
+          <h3>Wish It</h3>
+          <p>Explore our vast catalog</p>
+       
+        </div>
+        <div class="step-item">
+          <h3>Cart It</h3>
+          <p>Add items to your cart</p>
+        </div>
+        <div class="step-item">
+          <h3>Get It</h3>
+          <p>Fast delivery to your doorstep</p>
+        </div>
+      </div>
+
+     <div class="offer-card">
+  <div class="offer-badge">🎁 WELCOME OFFER</div>
+  <h3>₹200 OFF 💸</h3>
+  <small>On first order 🎉</small>
+</div>
+  </div>
+
+    </div>
+
+
+  <!-- RIGHT REGISTER PANEL -->
+  <div class="register-panel">
+    <div class="register-card">
+
+      <!-- TOP CONTENT -->
+      <div class="card-top">
+
+        <div class="card-header">
+          <h2>Create Account</h2>
+   
+        </div>
+
+        <div class="field">
+          <label>Username</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input [(ngModel)]="username" placeholder="Choose username" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input [(ngModel)]="email" placeholder="Enter email" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Register as</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👥</span>
+            <select [(ngModel)]="role">
+              <option value="Customer">Customer</option>
+              <option value="Retailer">Retailer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              placeholder="Create password" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              [(ngModel)]="confirmPassword"
+              placeholder="Confirm password" />
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM FIXED AREA -->
+      <div class="card-bottom">
+        <button class="register-btn" (click)="register()">
+          Create Account
+        </button>
+
+        <div class="login-section">
+          Already have an account?
+          <a routerLink="/login" class="login-link">Sign in</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+

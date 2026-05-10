@@ -1,0 +1,441 @@
+<div class="retailer-dashboard">
+  <!-- ANIMATED BACKGROUND -->
+  <div class="background-animation">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <h1>🏪 WishCart Retailer</h1>
+        <p>Manage your products and business</p>
+      </div>
+      <div class="user-section">
+        <span class="username">👤 {{ retailerName }}</span>
+        <button class="logout-btn" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <nav class="nav-menu">
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'dashboard'"
+          (click)="switchTab('dashboard')"
+        >
+          <span class="icon">📊</span>
+          <span>Dashboard</span>
+        </button>
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'products'"
+          (click)="switchTab('products')"
+        >
+          <span class="icon">📦</span>
+          <span>Products</span>
+        </button>
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'profile'"
+          (click)="switchTab('profile')"
+        >
+          <span class="icon">⚙️</span>
+          <span>Profile</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- ERROR/SUCCESS MESSAGES -->
+      <div class="message success-msg" *ngIf="successMsg">
+        <span>✓ {{ successMsg }}</span>
+        <button class="close-msg" (click)="successMsg = ''">×</button>
+      </div>
+      <div class="message error-msg" *ngIf="errorMsg">
+        <span>✗ {{ errorMsg }}</span>
+        <button class="close-msg" (click)="errorMsg = ''">×</button>
+      </div>
+
+      <!-- DASHBOARD TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'dashboard'">
+        <h2>Dashboard Overview</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-info">
+              <p class="stat-label">Total Products</p>
+              <p class="stat-value">{{ stats.totalProducts }}</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <p class="stat-label">Inventory Value</p>
+              <p class="stat-value">₹{{ stats.totalValue | number:'1.0-0' }}</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-info">
+              <p class="stat-label">Low Stock Items</p>
+              <p class="stat-value">{{ stats.lowStock }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="recent-section">
+          <h3>Recent Products</h3>
+          <div class="products-preview">
+            <div class="product-item" *ngFor="let product of products.slice(0, 3)">
+              <div class="product-image">
+                <img [src]="product.imageUrl || 'https://via.placeholder.com/120'" alt="{{ product.name }}">
+              </div>
+              <div class="product-details">
+                <h4>{{ product.name }}</h4>
+                <p class="price">₹{{ product.price }}</p>
+                <span class="quantity">Stock: {{ product.quantity }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'products'">
+        <div class="section-header">
+          <h2>Product Management</h2>
+          <button class="btn btn-primary" (click)="showAddProduct = !showAddProduct">
+            {{ showAddProduct ? '✕ Cancel' : '+ Add New Product' }}
+          </button>
+        </div>
+
+        <!-- ADD PRODUCT FORM -->
+        <div class="form-card" *ngIf="showAddProduct">
+          <h3>Add New Product</h3>
+          
+          <form (ngSubmit)="addProduct()" class="product-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Product Name *</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="newProduct.name" 
+                  name="name"
+                  placeholder="Enter product name"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Category</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="newProduct.category" 
+                  name="category"
+                  placeholder="e.g., Electronics"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea 
+                [(ngModel)]="newProduct.description" 
+                name="description"
+                placeholder="Product details"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Price (₹) *</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="newProduct.price" 
+                  name="price"
+                  placeholder="0.00"
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Quantity *</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="newProduct.quantity" 
+                  name="quantity"
+                  placeholder="0"
+                  min="0"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Image URL</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="newProduct.imageUrl" 
+                  name="imageUrl"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success" [disabled]="loading">
+                {{ loading ? 'Adding...' : 'Add Product' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="showAddProduct = false">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- EDIT PRODUCT FORM -->
+        <div class="form-card" *ngIf="editProduct && editingProductId">
+          <h3>Edit Product</h3>
+          
+          <form (ngSubmit)="saveEditProduct()" class="product-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Product Name *</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editProduct.name" 
+                  name="name"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Category</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editProduct.category" 
+                  name="category"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea 
+                [(ngModel)]="editProduct.description" 
+                name="description"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Price (₹) *</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="editProduct.price" 
+                  name="price"
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Quantity *</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="editProduct.quantity" 
+                  name="quantity"
+                  min="0"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Image URL</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editProduct.imageUrl" 
+                  name="imageUrl"
+                />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success" [disabled]="loading">
+                {{ loading ? 'Saving...' : 'Save Changes' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- PRODUCTS LIST -->
+        <div class="products-section">
+          <h3>Your Products ({{ products.length }})</h3>
+          
+          <div *ngIf="products.length === 0" class="empty-state">
+            <p>No products yet. Add your first product to get started!</p>
+          </div>
+
+          <div class="products-grid" *ngIf="products.length > 0">
+            <div class="product-card" *ngFor="let product of products">
+              <div class="product-image">
+                <img [src]="product.imageUrl || 'https://via.placeholder.com/200'" alt="{{ product.name }}">
+                <div class="stock-badge" [class.low]="product.quantity < 10">
+                  {{ product.quantity }}
+                </div>
+              </div>
+              <div class="product-content">
+                <h4>{{ product.name }}</h4>
+                <p class="category" *ngIf="product.category">{{ product.category }}</p>
+                <p class="description">{{ product.description | slice:0:60 }}...</p>
+                <div class="product-footer">
+                  <span class="price">₹{{ product.price }}</span>
+                  <div class="product-actions">
+                    <button class="btn-icon edit" (click)="startEditProduct(product)" title="Edit">✏️</button>
+                    <button class="btn-icon delete" (click)="deleteProduct(product.id)" title="Delete">🗑️</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'profile'">
+        <div class="section-header">
+          <h2>Store Profile</h2>
+          <button class="btn btn-primary" (click)="showEditProfile = !showEditProfile">
+            {{ showEditProfile ? '✕ Cancel' : '✏️ Edit Profile' }}
+          </button>
+        </div>
+
+        <!-- EDIT PROFILE FORM -->
+        <div class="form-card" *ngIf="showEditProfile">
+          <h3>Edit Store Profile</h3>
+          
+          <form (ngSubmit)="updateProfile()" class="profile-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Store Name *</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="profileForm.storeName" 
+                  name="storeName"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Phone *</label>
+                <input 
+                  type="tel" 
+                  [(ngModel)]="profileForm.phone" 
+                  name="phone"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea 
+                [(ngModel)]="profileForm.description" 
+                name="description"
+                rows="4"
+                placeholder="Tell customers about your store"
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Address</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="profileForm.address" 
+                  name="address"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>City</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="profileForm.city" 
+                  name="city"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>State</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="profileForm.state" 
+                  name="state"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Zip Code</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="profileForm.zipCode" 
+                  name="zipCode"
+                />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success" [disabled]="loading">
+                {{ loading ? 'Saving...' : 'Save Profile' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="showEditProfile = false">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- PROFILE DISPLAY -->
+        <div class="profile-card" *ngIf="!showEditProfile && profile">
+          <div class="profile-header">
+            <h3>{{ profile.storeName }}</h3>
+            <p class="status">✅ Active</p>
+          </div>
+          <div class="profile-details">
+            <div class="detail-row">
+              <span class="label">📧 Phone:</span>
+              <span class="value">{{ profile.phone }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">📍 Address:</span>
+              <span class="value">{{ profile.address }}, {{ profile.city }}, {{ profile.state }} {{ profile.zipCode }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">📝 Description:</span>
+              <span class="value">{{ profile.description }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

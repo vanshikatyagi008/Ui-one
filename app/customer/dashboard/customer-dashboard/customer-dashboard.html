@@ -1,0 +1,316 @@
+<div class="customer-dashboard">
+  <!-- ANIMATED BACKGROUND -->
+  <div class="background-animation">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <h1>🛍️ WishCart Customer</h1>
+        <p>Your premium shopping companion</p>
+      </div>
+      <div class="user-section">
+        <span class="username">👤 {{ customerName }}</span>
+        <button class="logout-btn" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <nav class="nav-menu">
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'dashboard'"
+          (click)="switchTab('dashboard')"
+        >
+          <span class="icon">📊</span>
+          <span>Dashboard</span>
+        </button>
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'orders'"
+          (click)="switchTab('orders')"
+        >
+          <span class="icon">📦</span>
+          <span>Orders</span>
+        </button>
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'cart'"
+          (click)="switchTab('cart')"
+        >
+          <span class="icon">🛒</span>
+          <span>Cart ({{ stats.cartItems }})</span>
+        </button>
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'wishlist'"
+          (click)="switchTab('wishlist')"
+        >
+          <span class="icon">❤️</span>
+          <span>Wishlist ({{ stats.wishlistItems }})</span>
+        </button>
+        <button 
+          class="nav-item" 
+          [class.active]="activeTab === 'profile'"
+          (click)="switchTab('profile')"
+        >
+          <span class="icon">⚙️</span>
+          <span>Profile</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- ERROR/SUCCESS MESSAGES -->
+      <div class="message success-msg" *ngIf="successMsg">
+        <span>✓ {{ successMsg }}</span>
+        <button class="close-msg" (click)="successMsg = ''">×</button>
+      </div>
+      <div class="message error-msg" *ngIf="errorMsg">
+        <span>✗ {{ errorMsg }}</span>
+        <button class="close-msg" (click)="errorMsg = ''">×</button>
+      </div>
+
+      <!-- DASHBOARD TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'dashboard'">
+        <h2>Dashboard Overview</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-info">
+              <p class="stat-label">Total Orders</p>
+              <p class="stat-value">{{ stats.totalOrders }}</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <p class="stat-label">Total Spent</p>
+              <p class="stat-value">₹{{ stats.totalSpent | number:'1.0-0' }}</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">🛒</div>
+            <div class="stat-info">
+              <p class="stat-label">Cart Items</p>
+              <p class="stat-value">{{ stats.cartItems }}</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">❤️</div>
+            <div class="stat-info">
+              <p class="stat-label">Wishlist Items</p>
+              <p class="stat-value">{{ stats.wishlistItems }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="recent-section">
+          <h3>Recent Orders</h3>
+          <div class="orders-preview" *ngIf="orders.length > 0">
+            <div class="order-item" *ngFor="let order of orders.slice(0, 3)">
+              <div class="order-header">
+                <span class="order-id">Order #{{ order.orderNumber || order.id }}</span>
+                <span class="order-status" [style.backgroundColor]="getOrderStatusColor(order.status)">
+                  {{ order.status }}
+                </span>
+              </div>
+              <div class="order-details">
+                <p>₹{{ order.totalAmount | number:'1.0-2' }}</p>
+                <p>{{ order.date || 'Today' }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="orders.length === 0">
+            <p>No orders yet</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'orders'">
+        <h2>Your Orders</h2>
+        
+        <div class="orders-list" *ngIf="orders.length > 0">
+          <div class="order-card" *ngFor="let order of orders">
+            <div class="order-card-header">
+              <div>
+                <h3>Order #{{ order.orderNumber || order.id }}</h3>
+                <p class="order-date">{{ order.date || 'Today' }}</p>
+              </div>
+              <span class="order-status" [style.backgroundColor]="getOrderStatusColor(order.status)">
+                {{ order.status }}
+              </span>
+            </div>
+
+            <div class="order-card-body">
+              <div class="items-list">
+                <div class="item" *ngFor="let item of order.items">
+                  <span>{{ item.productName }}</span>
+                  <span>{{ item.quantity }} x ₹{{ item.price | number:'1.0-2' }}</span>
+                </div>
+              </div>
+
+              <div class="order-summary">
+                <p><strong>Total:</strong> ₹{{ order.totalAmount | number:'1.0-2' }}</p>
+                <p *ngIf="order.shippingAddress"><strong>Address:</strong> {{ order.shippingAddress }}</p>
+              </div>
+
+              <div class="order-actions">
+                <button 
+                  *ngIf="order.status !== 'Delivered' && order.status !== 'Cancelled'"
+                  class="btn-cancel"
+                  (click)="cancelOrder(order.id)"
+                  [disabled]="loading"
+                >
+                  Cancel Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="orders.length === 0">
+          <p>No orders found</p>
+        </div>
+      </section>
+
+      <!-- CART TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'cart'">
+        <h2>Shopping Cart</h2>
+        
+        <div class="cart-container" *ngIf="cart.length > 0">
+          <div class="cart-items">
+            <div class="cart-item" *ngFor="let item of cart">
+              <div class="item-image" *ngIf="item.imageUrl">
+                <img [src]="item.imageUrl" [alt]="item.productName">
+              </div>
+              <div class="item-details">
+                <h4>{{ item.productName }}</h4>
+                <p class="price">₹{{ item.price | number:'1.0-2' }}</p>
+              </div>
+              <div class="item-quantity">
+                <button (click)="updateCartQuantity(item.id, item.quantity - 1)" [disabled]="item.quantity <= 1">-</button>
+                <input type="number" [(ngModel)]="item.quantity" (change)="updateCartQuantity(item.id, item.quantity)">
+                <button (click)="updateCartQuantity(item.id, item.quantity + 1)">+</button>
+              </div>
+              <div class="item-total">
+                <p>₹{{ (item.price * item.quantity) | number:'1.0-2' }}</p>
+              </div>
+              <button class="btn-remove" (click)="removeFromCart(item.id)">🗑️</button>
+            </div>
+          </div>
+
+          <div class="cart-summary">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span>₹{{ calculateCartTotal() | number:'1.0-2' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Shipping:</span>
+              <span>Free</span>
+            </div>
+            <div class="summary-total">
+              <span>Total:</span>
+              <span>₹{{ calculateCartTotal() | number:'1.0-2' }}</span>
+            </div>
+            <button class="btn-checkout" (click)="checkout()" [disabled]="loading">
+              {{ loading ? 'Processing...' : 'Checkout' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="cart.length === 0">
+          <p>Your cart is empty</p>
+        </div>
+      </section>
+
+      <!-- WISHLIST TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'wishlist'">
+        <h2>Your Wishlist</h2>
+        
+        <div class="wishlist-grid" *ngIf="wishlist.length > 0">
+          <div class="wishlist-item" *ngFor="let item of wishlist">
+            <div class="item-image" *ngIf="item.imageUrl">
+              <img [src]="item.imageUrl" [alt]="item.productName">
+            </div>
+            <h4>{{ item.productName }}</h4>
+            <p class="price">₹{{ item.price | number:'1.0-2' }}</p>
+            <p class="date">Added: {{ item.addedDate || 'Recently' }}</p>
+            <button class="btn-remove" (click)="removeFromWishlist(item.id)">Remove</button>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="wishlist.length === 0">
+          <p>Your wishlist is empty</p>
+        </div>
+      </section>
+
+      <!-- PROFILE TAB -->
+      <section class="tab-content" *ngIf="activeTab === 'profile'">
+        <h2>Your Profile</h2>
+
+        <div class="profile-card" *ngIf="!showEditProfile">
+          <div class="profile-info">
+            <h3>{{ profile?.username || customerName }}</h3>
+            <p>Email: {{ profile?.email }}</p>
+            <p>Phone: {{ profile?.phone }}</p>
+            <p>Address: {{ profile?.address }}, {{ profile?.city }}, {{ profile?.state }} {{ profile?.zipCode }}</p>
+          </div>
+          <button class="btn-edit" (click)="showEditProfile = true">Edit Profile</button>
+        </div>
+
+        <div class="profile-form" *ngIf="showEditProfile">
+          <h3>Edit Profile</h3>
+
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" [(ngModel)]="profileForm.phone" placeholder="Enter phone number">
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" [(ngModel)]="profileForm.address" placeholder="Enter address">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" [(ngModel)]="profileForm.city" placeholder="Enter city">
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" [(ngModel)]="profileForm.state" placeholder="Enter state">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Zip Code</label>
+            <input type="text" [(ngModel)]="profileForm.zipCode" placeholder="Enter zip code">
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-save" (click)="updateProfile()" [disabled]="loading">
+              {{ loading ? 'Saving...' : 'Save Changes' }}
+            </button>
+            <button class="btn-cancel" (click)="showEditProfile = false">Cancel</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
